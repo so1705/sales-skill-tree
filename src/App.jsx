@@ -1,601 +1,585 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronRight,
   Zap,
   ShieldCheck,
-  Search,
   Check,
+  ArrowRight,
+  ClipboardCheck,
+  Briefcase,
+  Search,
+  Award,
 } from "lucide-react";
 
 /**
- * =========================================================
- *  App.jsx (replace whole file)
- * =========================================================
+ * Strategic Sales Mastery Guide
+ * - Marble Texture Background
+ * - Integrated Scroll Textbook UI
+ * - Sticky Nav + Active Section Sync
  */
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState("cover");
-
-  const navItems = useMemo(
+  const sections = useMemo(
     () => [
       { id: "cover", label: "表紙" },
       { id: "pyramid", label: "全体体系図" },
-      { id: "appointer", label: "アポインター" },
+      { id: "catcher", label: "キャッチャー" },
       { id: "closer", label: "クローザー" },
     ],
     []
   );
 
-  // -----------------------------
-  //  UI Parts
-  // -----------------------------
+  const [active, setActive] = useState("cover");
 
-  const BackgroundDecor = () => (
-    <div className="absolute inset-0 pointer-events-none">
-      {/* marble-ish base */}
-      <div className="absolute inset-0 bg-marble" />
-      {/* soft vignette */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/0 to-slate-100/60" />
-      {/* subtle dots */}
-      <div className="absolute inset-0 opacity-[0.06] bg-[radial-gradient(#0f172a_1px,transparent_1px)] [background-size:28px_28px]" />
+  const coverRef = useRef(null);
+  const pyramidRef = useRef(null);
+  const catcherRef = useRef(null);
+  const closerRef = useRef(null);
+
+  const refMap = {
+    cover: coverRef,
+    pyramid: pyramidRef,
+    catcher: catcherRef,
+    closer: closerRef,
+  };
+
+  const scrollTo = (id) => {
+    const el = refMap[id]?.current;
+    if (!el) return;
+
+    const offset = 110; // Nav height offset
+    const bodyRect = document.body.getBoundingClientRect().top;
+    const elementRect = el.getBoundingClientRect().top;
+    const elementPosition = elementRect - bodyRect;
+    const offsetPosition = elementPosition - offset;
+
+    window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    const targets = Object.entries(refMap)
+      .map(([id, r]) => ({ id, el: r.current }))
+      .filter((x) => x.el);
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (visible?.target?.dataset?.section) {
+          setActive(visible.target.dataset.section);
+        }
+      },
+      {
+        root: null,
+        threshold: [0.1, 0.3, 0.5],
+        rootMargin: "-20% 0px -40% 0px",
+      }
+    );
+
+    targets.forEach(({ el }) => io.observe(el));
+    return () => io.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // --- CONTENT DATA ---
+
+  const catcherElements = [
+    {
+      no: "01",
+      title: '心を開かせて“聞く姿勢”を作る力',
+      icon: Zap,
+      why: "営業で一番最初に必要なのは、提案の上手さよりも「相手が話を聞く状態」になっていること。ここが作れないとニーズも引き出せません。警戒を下げて“聞く空気”を作る力を、反復で型にしていきます。",
+      stage: "商談の入口の型づくり。第一声を短く、反応を見て、トーンと距離感を微調整する練習。",
+      career: [
+        "面接：冒頭の自己紹介が短く、落ち着いて、感じよく入れる（第一印象が安定）",
+        "OB訪問：初対面での声かけが自然になり、関係構築が早くなる",
+        "ES：冗長さが減り、結論から書ける（読み手の負担が減る）",
+        "GD：場の空気を整える一言が出せる（発言の入口が作れる）",
+      ],
+      checks: ["第一声が短い（説明が始まっていない）", "反応に合わせて言い方を変えられている"],
+    },
+    {
+      no: "02",
+      title: "回数を積み上げる行動量の力",
+      icon: Zap,
+      why: "営業は一定の確率の勝負です。現実は「回数を積んだ人」が最後に勝つ。断られてもテンポを落とさず、行動量を積み上げられる“基礎体力”を鍛える場です。",
+      stage: "「次に進む力の定着」。断られても止まらず、会話を長引かせず、日によって行動量を落とさない訓練。",
+      career: [
+        "就活全体：応募・面接・OB訪問の行動量を落とさず走れる",
+        "不合格後：感情で止まらず、次へ切り替えられる",
+        "インターン：与えられた打席数をやり切れる人として信頼される",
+        "入社後：最初に求められる“量”を出せる（成長速度が上がる）",
+      ],
+      checks: ["断られてもテンションが崩れにくい", "一定の行動量を継続できている"],
+    },
+    {
+      no: "03",
+      title: "分析を繰り返して身につく改善力",
+      icon: Zap,
+      why: "キャッチャーは反応がすぐ分かります。だから自然と仮説→実行→修正の回転が速くなり、感覚ではなく“再現できる勝ちパターン”が作れるようになります。",
+      stage: "「反応の言語化→次に反映」。今日うまくいった点/悪かった点を整理して翌日の声かけに反映する。",
+      career: [
+        "面接：回数を重ねるほど改善が見える（伸びしろとして伝わる）",
+        "ES：添削の直し方が“構造的”になる（直すべき点が明確）",
+        "GD：失敗を分析して次で役割や立ち回りを変えられる",
+        "自己分析：経験を言語化して強みに変えられる",
+      ],
+      checks: ["振り返りが具体的（改善策が決まっている）", "翌日の行動に修正が反映されている"],
+    },
+    {
+      no: "04",
+      title: "相手に合わせて会話を成立させる力",
+      icon: Zap,
+      why: "年齢も性格も違う相手が連続で来ます。反応を見てテンポ・言葉・距離感を変える必要がある。これが積み上がると、社会人の基礎になる“対人調整力”が上がります。",
+      stage: "「相手の状態を掴み、押す/引く/切り替える判断」。短時間で相手の温度感を見極める。",
+      career: [
+        "面接：面接官タイプに合わせて話し方を調整できる",
+        "OB訪問：相手が話しやすい距離感・質問が作れる",
+        "GD：多様な意見を受け止め、合意形成に寄れる",
+        "入社後：部署外や取引先とも関係を作れる",
+      ],
+      checks: ["相手タイプ別にテンポ/言い方を変えられる", "会話が途切れず次の一手が出る"],
+    },
+  ];
+
+  const closerElements = [
+    {
+      no: "01",
+      title: "本音を引き出すヒアリング力",
+      icon: ShieldCheck,
+      why: "クローザーは相手の状況・悩み・優先順位を“言語化させる”役割です。表面的な要望で終わらず、本音や迷いの原因まで掘れたときに提案の精度が一気に上がります。",
+      stage: "現状/理想/障害/期限を整理して、認識を合わせる。要約でズレを消す。",
+      career: [
+        "面接：深掘りで詰まらない（背景と理由が言語化できる）",
+        "逆質問：企業側の状況を引き出し、学びの密度が上がる",
+        "GD：議論が拡散したときに整理して戻せる",
+        "自己分析：自分の行動理由を掘れて、一貫した軸が作れる",
+      ],
+      checks: ["相手の課題が“自分の言葉”で言語化できている", "要約確認による合意形成ができている"],
+    },
+    {
+      no: "02",
+      title: "刺さる提案を組み立てる力",
+      icon: ShieldCheck,
+      why: "提案は“正しさ”ではなく“相手に刺さる形”で出す必要があります。相手の言葉に翻訳し判断軸を作る。ここまでできると提案は通りやすくなります。",
+      stage: "「結論→理由→具体→次の順で、短く筋を通す」。比較軸を作って迷いを減らす。",
+      career: [
+        "志望動機：企業の文脈に合わせて言い換えができる",
+        "自己PR：根拠と具体で説得力ある説明ができる",
+        "ケース面接：論点整理→提案の流れを作れる",
+        "企業比較：判断基準を作れて迷いが減る",
+      ],
+      checks: ["提案が簡潔で筋が通っている", "判断基準が明確で迷いを減らせている"],
+    },
+    {
+      no: "03",
+      title: "不安をほどいて決断に導く力",
+      icon: ShieldCheck,
+      why: "止まる原因は反論よりも“不安”です。論点を整理して不安を小さく分解し、納得で前に進める。ここができると成約率の上振れが起きます。",
+      stage: "「不安を言語化→一つずつ解消」。圧で押すのではなく、納得に変換する。",
+      career: [
+        "面接：弱みを聞かれても、前向きに整理して説明できる",
+        "GD：反対意見が出ても論点を整えて前に進められる",
+        "対人交渉：相手の懸念を先回りして潰せる（信頼の構築）",
+        "入社後：関係者の不安をほどいてプロジェクトを推進できる",
+      ],
+      checks: ["迷いの原因を言語化できている", "不安が整理され次の一歩が見えている"],
+    },
+    {
+      no: "04",
+      title: "決断まで運び切るクロージング力",
+      icon: ShieldCheck,
+      why: "最後は次の行動を“合意”として確定させる力です。やる/やらないを曖昧にせず、期限と次ステップをセットで決める。これが“完遂力”になります。",
+      stage: "「次アクションの確定」と「勝敗分析」。良かった点/詰まった点を型として更新する。",
+      career: [
+        "最終面接：主体性・覚悟・決断力として伝わる",
+        "不合格後：原因分析→改善ができる（成長力のアピール）",
+        "リーダー経験：意思決定を前に進めた経験として語れる",
+        "入社後：推進力・完遂力として評価されやすい",
+      ],
+      checks: ["次アクション（期限・内容）が確定している", "振り返りが型の更新に繋がっている"],
+    },
+  ];
+
+  // --- UI COMPONENTS ---
+
+  const MarbleBackground = () => (
+    <div className="fixed inset-0 z-[-1] pointer-events-none bg-[#fdfdfd]">
+      <div
+        className="absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage: `linear-gradient(30deg, transparent 45%, #000 48%, #000 50%, transparent 52%),
+                            linear-gradient(-30deg, transparent 40%, #000 42%, #000 43%, transparent 45%)`,
+          backgroundSize: "1200px 1200px",
+        }}
+      />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.9),transparent)]" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-slate-100/30 via-transparent to-slate-200/30" />
     </div>
   );
 
-  const NavButton = ({ active, children, onClick }) => {
-    // ここが「選択中ボタンの文字が白で見えない」問題の修正ポイント
-    // activeは濃背景＋白文字、inactiveは薄背景＋濃文字に固定
-    const base =
-      "px-5 py-3 rounded-xl text-xs font-bold transition-all whitespace-nowrap";
-    const activeClass =
-  "bg-white text-orange-600 border border-orange-300 shadow-lg shadow-orange-100";
+  const ElementCard = ({ item, role }) => {
+    const isCatcher = role === "catcher";
+    const accentColor = isCatcher ? "text-blue-600" : "text-emerald-600";
+    const bgAccent = isCatcher ? "bg-blue-600" : "bg-emerald-600";
+    const pillBg = isCatcher
+      ? "bg-blue-50 border-blue-100 text-blue-700"
+      : "bg-emerald-50 border-emerald-100 text-emerald-700";
 
-    const inactiveClass =
-      "bg-white/70 text-slate-700 border border-slate-200 hover:bg-white hover:text-slate-900 hover:border-slate-300";
     return (
-      <button onClick={onClick} className={`${base} ${active ? activeClass : inactiveClass}`}>
-        {children}
-      </button>
-    );
-  };
+      <div className="bg-white/80 backdrop-blur-md border border-slate-200 rounded-[2.5rem] shadow-xl p-8 md:p-12 relative group hover:shadow-2xl transition-all duration-500">
+        <div className="absolute -top-10 left-10 text-[10rem] font-black text-slate-100 select-none -z-10 tracking-tighter">
+          {item.no}
+        </div>
 
-  const SectionShell = ({ eyebrow, title, subtitle, children }) => (
-    <section className="relative rounded-3xl border border-slate-200 bg-white/70 shadow-[0_12px_40px_rgba(15,23,42,0.06)] overflow-hidden">
-      <BackgroundDecor />
-      <div className="relative z-10 p-10 md:p-14">
-        <div className="mb-8">
-          {eyebrow && (
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black tracking-[0.18em] uppercase bg-slate-900 text-white">
-              {eyebrow}
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* Left Side */}
+          <div className="lg:w-2/5">
+            <div
+              className={`inline-flex items-center gap-3 px-4 py-1.5 rounded-full border mb-6 ${pillBg} font-black text-[10px] tracking-widest uppercase`}
+            >
+              {role} Stage {item.no}
             </div>
-          )}
-          <h1 className="mt-4 text-3xl md:text-5xl font-black tracking-tight text-slate-900">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="mt-3 text-sm md:text-base text-slate-600 leading-relaxed max-w-3xl">
-              {subtitle}
+
+            <h3 className="text-3xl font-black text-slate-900 mb-6 leading-tight tracking-tighter">
+              {item.title}
+            </h3>
+
+            <div className={`${bgAccent} w-12 h-1 mb-6 rounded-full`} />
+
+            <p className="text-slate-600 text-sm leading-relaxed font-bold">
+              {item.why}
             </p>
-          )}
-        </div>
-        {children}
-      </div>
-    </section>
-  );
 
-  // -----------------------------
-  //  Pages
-  // -----------------------------
-
-  const CoverPage = () => (
-    <SectionShell
-      eyebrow="Sales Textbook"
-      title="催事営業 ステップアップ教科書"
-      subtitle="現場の「感覚」を、再現できる「型」へ。入口から意思決定までを、就活にも転用できる形で言語化する。"
-    >
-      <div className="mt-10 grid md:grid-cols-2 gap-8">
-        <div className="rounded-2xl border border-slate-200 bg-white/70 p-7">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center">
-              <Zap size={18} />
+            <div className="mt-8 p-6 bg-slate-50 border border-slate-100 rounded-3xl">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">
+                現場でのアクション段階
+              </span>
+              <p className="text-sm font-black text-slate-800 leading-relaxed italic">
+                「{item.stage}」
+              </p>
             </div>
-            <div className="font-black text-slate-900">Appointer</div>
           </div>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            入口を作り、会話を前に進める。「第一印象」と「反応適応」を鍛える。
-          </p>
-        </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white/70 p-7">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center">
-              <ShieldCheck size={18} />
+          {/* Right Side */}
+          <div className="lg:w-3/5 space-y-10">
+            <div>
+              <h4 className="flex items-center gap-3 text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-6 border-b border-slate-100 pb-3">
+                <Briefcase size={16} className={accentColor} /> 就活での強み
+              </h4>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                {item.career.map((c, i) => (
+                  <div
+                    key={i}
+                    className="flex gap-3 items-start bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:border-slate-300 transition-colors"
+                  >
+                    <ArrowRight size={14} className="text-slate-300 mt-1 shrink-0" />
+                    <span className="text-xs text-slate-700 font-black leading-relaxed">
+                      {c}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="font-black text-slate-900">Closer</div>
-          </div>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            課題を言語化し、提案で納得を作る。「意思決定を前に進める力」を鍛える。
-          </p>
-        </div>
-      </div>
 
-      <div className="mt-12">
-        <button
-          onClick={() => setCurrentPage("pyramid")}
-          className="group inline-flex items-center gap-3 px-7 py-4 rounded-full bg-slate-900 text-white font-black shadow-lg shadow-slate-200 hover:translate-y-[-1px] transition-all"
-        >
-          学習を開始する
-          <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-        </button>
-      </div>
-    </SectionShell>
-  );
+            <div className="bg-slate-900 rounded-[2rem] p-8 shadow-2xl relative overflow-hidden group/audit">
+              <div className="absolute top-0 right-0 p-6 opacity-5">
+                <ClipboardCheck size={100} className="text-white" />
+              </div>
 
-  // -----------------------------
-  //  Pyramid (real pyramid look)
-  // -----------------------------
-  const PyramidTier = ({ level, title, description, widthClass, tone = "slate" }) => {
-    const toneMap = {
-      slate: "bg-slate-900 text-white",
-      blue: "bg-blue-600 text-white",
-      emerald: "bg-emerald-600 text-white",
-      light: "bg-white text-slate-900 border border-slate-200",
-    };
-    // trapezoid clip to look like pyramid blocks
-    return (
-      <div className={`mx-auto ${widthClass}`}>
-        <div
-          className={`relative px-6 py-5 md:px-8 md:py-6 rounded-2xl ${toneMap[tone]} shadow-[0_12px_30px_rgba(15,23,42,0.10)]`}
-          style={{
-            clipPath: "polygon(6% 0, 94% 0, 100% 100%, 0 100%)",
-          }}
-        >
-          <div className="flex items-baseline justify-between gap-4">
-            <div className="text-[10px] font-black tracking-[0.2em] uppercase opacity-80">
-              Level 0{level}
+              <div className="relative z-10">
+                <h4 className="text-[10px] font-black text-orange-400 uppercase tracking-[0.4em] mb-6 text-center">
+                  Mastery Audit
+                </h4>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {item.checks.map((t, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-colors cursor-pointer group/check"
+                    >
+                      <div className="w-6 h-6 rounded-lg border-2 border-white/20 flex items-center justify-center group-hover/check:border-orange-500 transition-colors shrink-0">
+                        <Check
+                          size={14}
+                          className="text-orange-500 opacity-0 group-hover/check:opacity-100 transition-opacity"
+                        />
+                      </div>
+                      <span className="text-xs text-slate-200 font-bold">{t}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="text-[10px] font-bold opacity-70">結論：{title}</div>
-          </div>
 
-          <div className="mt-2 font-black text-base md:text-lg tracking-tight">
-            {title}
           </div>
-          <p className="mt-2 text-xs md:text-sm leading-relaxed opacity-90">
-            {description}
-          </p>
         </div>
       </div>
     );
   };
-
-  const PyramidColumn = ({ icon: Icon, label, subLabel, tiers }) => (
-    <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 md:p-10">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center">
-          <Icon size={22} />
-        </div>
-        <div>
-          <div className="text-lg font-black text-slate-900">{label}</div>
-          <div className="text-xs font-bold text-slate-500 tracking-[0.18em] uppercase">
-            {subLabel}
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {/* top -> bottom pyramid */}
-        {tiers.map((t) => (
-          <PyramidTier key={t.level} {...t} />
-        ))}
-      </div>
-    </div>
-  );
-
-  const PyramidView = () => (
-    <SectionShell
-      eyebrow="Architecture"
-      title="全体体系図（ピラミッド）"
-      subtitle="結論：4階層は「型で成果を安定させ、次に繋げられる人」になるためのロードマップ。下ほど土台・上ほど再現性。"
-    >
-      <div className="grid lg:grid-cols-2 gap-10">
-        <PyramidColumn
-          icon={Zap}
-          label="Appointer"
-          subLabel="Acquisition Mastery"
-          tiers={[
-            { level: 4, title: "再現性×引き継ぎ", description: "成果を安定化し、情報を整理して次へつなぐ。", widthClass: "w-full", tone: "slate" },
-            { level: 3, title: "入口誘導", description: "不安を潰して、次の場へ自然に運ぶ。", widthClass: "w-[92%]", tone: "blue" },
-            { level: 2, title: "会話化", description: "1往復の会話を作り、次の問いへ繋げる。", widthClass: "w-[84%]", tone: "light" },
-            { level: 1, title: "声かけ基礎", description: "第一声を短く、反応を見て即切り替える。", widthClass: "w-[76%]", tone: "light" },
-          ]}
-        />
-
-        <PyramidColumn
-          icon={ShieldCheck}
-          label="Closer"
-          subLabel="Decision Support"
-          tiers={[
-            { level: 4, title: "クロージング×再現性", description: "意思決定まで運び、勝敗を分析して型を更新する。", widthClass: "w-full", tone: "slate" },
-            { level: 3, title: "提案設計", description: "価値を翻訳し、判断基準を作って迷いを減らす。", widthClass: "w-[92%]", tone: "emerald" },
-            { level: 2, title: "ヒアリング主担当", description: "現状/理想/障害/優先順位を整理し、合意形成する。", widthClass: "w-[84%]", tone: "light" },
-            { level: 1, title: "同席・補助", description: "商談構造を観察し、要点・不安・決め手を拾う。", widthClass: "w-[76%]", tone: "light" },
-          ]}
-        />
-      </div>
-
-      <div className="mt-10 flex gap-3">
-        <button
-          onClick={() => setCurrentPage("appointer")}
-          className="px-5 py-3 rounded-xl bg-slate-900 text-white text-xs font-black hover:translate-y-[-1px] transition-all"
-        >
-          次：アポインター詳細へ
-        </button>
-        <button
-          onClick={() => setCurrentPage("closer")}
-          className="px-5 py-3 rounded-xl bg-white/70 border border-slate-200 text-slate-800 text-xs font-black hover:bg-white transition-all"
-        >
-          クローザー詳細へ
-        </button>
-      </div>
-    </SectionShell>
-  );
-
-  // -----------------------------
-  //  Detail Pages (simple textbook)
-  // -----------------------------
-  const DetailPage = ({ title, icon: Icon, data }) => (
-    <SectionShell
-      eyebrow="Textbook"
-      title={title}
-      subtitle="結論：各階層は「現場アクション → 身につくスキル → 就活への転用 → チェック2つ」で読む。"
-    >
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center">
-          <Icon size={22} />
-        </div>
-        <div className="text-sm font-black text-slate-700">
-          スクロールで上から順に読める設計
-        </div>
-      </div>
-
-      <div className="space-y-8">
-        {data.map((tier) => (
-          <article
-            key={tier.lv}
-            className="rounded-3xl border border-slate-200 bg-white/80 p-8 md:p-10"
-          >
-            <div className="flex items-start justify-between gap-6 flex-wrap">
-              <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 text-white text-[10px] font-black tracking-[0.2em] uppercase">
-                  Level 0{tier.lv}
-                </div>
-                <h3 className="mt-4 text-xl md:text-2xl font-black tracking-tight text-slate-900">
-                  {tier.title}
-                </h3>
-              </div>
-            </div>
-
-            <div className="mt-6 grid lg:grid-cols-12 gap-8">
-              <div className="lg:col-span-4">
-                <div className="rounded-2xl bg-slate-50 border border-slate-200 p-6">
-                  <div className="text-[10px] font-black tracking-[0.2em] uppercase text-slate-500">
-                    結論1行（現場アクション）
-                  </div>
-                  <div className="mt-3 text-sm font-bold text-slate-900 leading-relaxed">
-                    {tier.action}
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:col-span-8 space-y-6">
-                <div>
-                  <div className="text-[10px] font-black tracking-[0.2em] uppercase text-slate-500">
-                    身につく営業スキル
-                  </div>
-                  <ul className="mt-3 space-y-2">
-                    {tier.skills.map((s, i) => (
-                      <li key={i} className="flex gap-3 text-sm text-slate-700 leading-relaxed">
-                        <span className="mt-1 w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center shrink-0 bg-white">
-                          <Check size={12} className="text-slate-900" />
-                        </span>
-                        <span>{s}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <div className="text-[10px] font-black tracking-[0.2em] uppercase text-slate-500">
-                    就活でどう活きるか
-                  </div>
-                  <ul className="mt-3 space-y-2">
-                    {tier.career.map((c, i) => (
-                      <li key={i} className="text-sm text-slate-700 leading-relaxed">
-                        ・{c}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="rounded-2xl bg-slate-900 text-white p-6">
-                  <div className="text-[10px] font-black tracking-[0.2em] uppercase text-white/70">
-                    Check（2つで十分）
-                  </div>
-                  <ul className="mt-3 grid md:grid-cols-2 gap-3">
-                    {tier.evaluation.slice(0, 2).map((ev, i) => (
-                      <li key={i} className="text-xs leading-relaxed bg-white/10 border border-white/10 rounded-xl p-4">
-                        {ev}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-    </SectionShell>
-  );
 
   return (
-    <div className="max-w-6xl mx-auto px-5 md:px-8 py-10 md:py-14 font-sans text-slate-900">
-      {/* Navbar */}
-      <nav className="sticky top-5 z-50 mb-10">
-        <div className="rounded-2xl border border-slate-200 bg-white/75 backdrop-blur-xl shadow-lg shadow-slate-100 px-4 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black">
+    <div className="min-h-screen text-slate-900 font-sans selection:bg-orange-100">
+      <MarbleBackground />
+
+      {/* Navigation */}
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-5xl">
+        <div className="bg-white/90 backdrop-blur-2xl border border-slate-200 p-2.5 rounded-full shadow-2xl flex items-center justify-between px-6">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-slate-950 text-white rounded-full flex items-center justify-center font-black shadow-lg">
               教
             </div>
             <div className="hidden sm:block">
-              <div className="text-[10px] font-black tracking-[0.18em] uppercase text-slate-500">
-                Sales Skill Textbook
-              </div>
-              <div className="text-sm font-black tracking-tight text-slate-900">
-                催事営業 ステップアップ体系
-              </div>
+              <span className="text-[9px] font-black text-slate-400 block uppercase tracking-widest leading-none mb-0.5">
+                Strategic Mastery
+              </span>
+              <span className="text-xs font-black text-slate-900">実務能力開発教科書</span>
             </div>
           </div>
 
-          <div className="flex gap-2 overflow-x-auto">
-            {navItems.map((item) => (
-              <NavButton
-                key={item.id}
-                active={currentPage === item.id}
-                onClick={() => setCurrentPage(item.id)}
+          <div className="flex gap-1.5 bg-slate-100 p-1 rounded-full">
+            {sections.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => scrollTo(s.id)}
+                className={`px-6 py-2.5 rounded-full text-xs font-black transition-all whitespace-nowrap ${
+                  active === s.id
+                    ? "bg-white text-orange-500 shadow-sm"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
               >
-                {item.label}
-              </NavButton>
+                {s.label}
+              </button>
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-2 pl-3 border-l border-slate-200">
-            <Search size={18} className="text-slate-400" />
-            <span className="text-xs font-bold text-slate-500">Search</span>
+          <div className="hidden md:block">
+            <Search size={18} className="text-slate-300 hover:text-slate-900 cursor-pointer" />
           </div>
         </div>
       </nav>
 
-      {/* Pages */}
-      <main className="space-y-10">
-        {currentPage === "cover" && <CoverPage />}
-        {currentPage === "pyramid" && <PyramidView />}
-        {currentPage === "appointer" && (
-          <DetailPage title="Appointer（アポインター）" icon={Zap} data={appointerData} />
-        )}
-        {currentPage === "closer" && (
-          <DetailPage title="Closer（クローザー）" icon={ShieldCheck} data={closerData} />
-        )}
+      {/* Body Content */}
+      <main className="max-w-6xl mx-auto px-6 pt-36 pb-20 space-y-32">
+        {/* COVER */}
+        <section
+          ref={coverRef}
+          data-section="cover"
+          className="relative min-h-[600px] flex flex-col items-center justify-center text-center p-12 bg-slate-950 text-white rounded-[3rem] shadow-2xl overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.08),transparent_70%)]" />
+          <div className="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem]" />
+
+          <div className="relative z-10 flex flex-col items-center max-w-3xl">
+            <div className="mb-10 inline-flex items-center gap-3 px-6 py-2 bg-white/5 border border-white/10 rounded-full animate-bounce-slow">
+              <Award size={18} className="text-orange-400" />
+              <span className="text-[10px] font-black tracking-[0.3em] uppercase">
+                Special Training Module
+              </span>
+            </div>
+
+            <h1 className="text-5xl md:text-8xl font-black mb-8 tracking-tighter leading-tight">
+              催事営業<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-200 to-emerald-400">
+                実務習得の教科書
+              </span>
+            </h1>
+
+            <p className="text-lg text-slate-400 mb-14 leading-relaxed font-medium">
+              現場の「感覚」を、再現可能な「型」へと定義し直す。<br />
+              就職活動で最強の武器となる論理的思考力と完遂能力をここで習得する。
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-6">
+              <button
+                onClick={() => scrollTo("pyramid")}
+                className="px-12 py-5 bg-white text-slate-950 font-black rounded-2xl shadow-xl flex items-center gap-3 hover:scale-105 transition-all"
+              >
+                学習を開始する <ChevronRight size={20} />
+              </button>
+              <button
+                onClick={() => scrollTo("catcher")}
+                className="px-10 py-5 bg-white/5 border border-white/10 text-white font-black rounded-2xl flex items-center gap-3 hover:bg-white/10 transition-all"
+              >
+                キャッチャーから読む <ArrowRight size={20} className="opacity-40" />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* PYRAMID */}
+        <section
+          ref={pyramidRef}
+          data-section="pyramid"
+          className="relative p-12 md:p-20 bg-white/60 backdrop-blur-md rounded-[3rem] border border-slate-100 shadow-xl overflow-hidden"
+        >
+          <header className="mb-20 text-center">
+            <h2 className="text-xs font-black text-slate-400 tracking-[0.4em] uppercase mb-4">
+              Architecture
+            </h2>
+            <h3 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+              全体体系図（ピラミッド）
+            </h3>
+            <p className="mt-6 text-slate-500 font-bold max-w-2xl mx-auto">
+              成長の全行程を四大要素で可視化。ここが本教科書の設計図です。
+            </p>
+          </header>
+
+          <div className="grid lg:grid-cols-2 gap-24">
+            {/* Catcher Path */}
+            <div className="flex flex-col items-center">
+              <div className="mb-14 text-center">
+                <div className="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-2xl mb-6 mx-auto">
+                  <Zap size={32} />
+                </div>
+                <h4 className="text-2xl font-black text-slate-800 tracking-tight">
+                  Catcher Path
+                </h4>
+                <p className="text-xs font-bold text-blue-500 mt-2 uppercase tracking-widest">
+                  ～ 突破力を磨く ～
+                </p>
+              </div>
+
+              {/* ✅ ここが修正点：flex-col-reverse → flex-col（上からLevel1→4） */}
+              <div className="w-full flex flex-col items-center gap-3">
+                {[
+                  { lv: 1, name: "聞く姿勢を作る", desc: "第一印象と警戒緩和", color: "bg-blue-50 border-blue-100 text-blue-700" },
+                  { lv: 2, name: "回数を積む", desc: "行動量の最大化と基礎体力", color: "bg-blue-100 border-blue-200 text-blue-800" },
+                  { lv: 3, name: "分析し改善する", desc: "勝ちパターンの言語化", color: "bg-blue-600 border-blue-600 text-white" },
+                  { lv: 4, name: "相手に合わせる", desc: "適応力と会話の成立", color: "bg-slate-900 border-slate-900 text-white shadow-2xl" },
+                ].map((item) => (
+                  <div
+                    key={item.lv}
+                    className={`${item.color} w-full p-6 rounded-2xl border flex flex-col items-center shadow-md transition-all hover:scale-105 cursor-pointer`}
+                    style={{ maxWidth: `${70 + item.lv * 7.5}%` }}
+                    onClick={() => scrollTo("catcher")}
+                    title={item.desc}
+                  >
+                    <span className="text-[10px] font-black opacity-50 uppercase tracking-tighter">
+                      Level 0{item.lv}
+                    </span>
+                    <span className="font-bold text-base">{item.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Closer Path */}
+            <div className="flex flex-col items-center">
+              <div className="mb-14 text-center">
+                <div className="w-16 h-16 bg-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-2xl mb-6 mx-auto">
+                  <ShieldCheck size={32} />
+                </div>
+                <h4 className="text-2xl font-black text-slate-800 tracking-tight">
+                  Closer Path
+                </h4>
+                <p className="text-xs font-bold text-emerald-500 mt-2 uppercase tracking-widest">
+                  ～ 完遂力を磨く ～
+                </p>
+              </div>
+
+              {/* ✅ ここも修正点：flex-col-reverse → flex-col（上からLevel1→4） */}
+              <div className="w-full flex flex-col items-center gap-3">
+                {[
+                  { lv: 1, name: "本音を引き出す", desc: "課題の特定と要約", color: "bg-emerald-50 border-emerald-100 text-emerald-700" },
+                  { lv: 2, name: "提案を刺す", desc: "価値翻訳と論理構成", color: "bg-emerald-100 border-emerald-200 text-emerald-800" },
+                  { lv: 3, name: "不安をほどく", desc: "懸念解消と納得感", color: "bg-emerald-600 border-emerald-600 text-white" },
+                  { lv: 4, name: "決断まで運ぶ", desc: "合意形成とクロージング", color: "bg-slate-900 border-slate-900 text-white shadow-2xl" },
+                ].map((item) => (
+                  <div
+                    key={item.lv}
+                    className={`${item.color} w-full p-6 rounded-2xl border flex flex-col items-center shadow-md transition-all hover:scale-105 cursor-pointer`}
+                    style={{ maxWidth: `${70 + item.lv * 7.5}%` }}
+                    onClick={() => scrollTo("closer")}
+                    title={item.desc}
+                  >
+                    <span className="text-[10px] font-black opacity-50 uppercase tracking-tighter">
+                      Level 0{item.lv}
+                    </span>
+                    <span className="font-bold text-base">{item.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CATCHER */}
+        <section ref={catcherRef} data-section="catcher" className="space-y-20">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16 px-4">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 border border-blue-200 px-4 py-1.5 text-blue-700 font-black text-[10px] tracking-widest uppercase mb-4">
+                Section 01
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter">
+                キャッチャー：四大要素
+              </h2>
+            </div>
+
+            <button
+              onClick={() => scrollTo("closer")}
+              className="flex items-center gap-3 px-8 py-3 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition shadow-lg"
+            >
+              次：クローザーへ <ChevronRight size={18} />
+            </button>
+          </div>
+
+          <div className="space-y-24">
+            {catcherElements.map((el) => (
+              <ElementCard key={el.no} item={el} role="catcher" />
+            ))}
+          </div>
+        </section>
+
+        {/* CLOSER */}
+        <section ref={closerRef} data-section="closer" className="space-y-20">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16 px-4">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1.5 text-emerald-700 font-black text-[10px] tracking-widest uppercase mb-4">
+                Section 02
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter">
+                クローザー：四大要素
+              </h2>
+            </div>
+
+            <button
+              onClick={() => scrollTo("cover")}
+              className="flex items-center gap-3 px-8 py-3 bg-white border border-slate-200 text-slate-900 font-black rounded-2xl hover:bg-slate-50 transition shadow-sm"
+            >
+              表紙へ戻る <ArrowRight size={18} />
+            </button>
+          </div>
+
+          <div className="space-y-24">
+            {closerElements.map((el) => (
+              <ElementCard key={el.no} item={el} role="closer" />
+            ))}
+          </div>
+        </section>
       </main>
 
-      <footer className="mt-12 text-xs text-slate-500">
-        © Sales Skill Tree / Textbook UI
+      <footer className="py-20 border-t border-slate-100 text-center font-black text-slate-300 uppercase tracking-[0.5em] text-[10px]">
+        © 2024 Strategic Mastery Framework — Career Design Unit
       </footer>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes bounce-slow {
+              0%, 100% { transform: translateY(-5%); }
+              50% { transform: translateY(0); }
+            }
+            .animate-bounce-slow {
+              animation: bounce-slow 4s ease-in-out infinite;
+            }
+          `,
+        }}
+      />
     </div>
   );
 };
-
-// -----------------------------
-//  Data (keep yours; shortened checks on UI)
-// -----------------------------
-const appointerData = [
-  {
-    lv: 1,
-    title: "声かけ基礎（入口の型づくり）",
-    action: "第一声を短く出す／反応を見る／すぐ切り替える。",
-    skills: [
-      "第一印象の設計（声・表情・距離感・雰囲気）",
-      "簡潔化（言葉を削り要点で伝える）",
-      "反応観察（表情・テンポ・警戒度の変化を読む）",
-      "初手の仮説→検証（導入の微調整）",
-      "断られても崩れない切り替え",
-      "反復で型を作り再現性を上げる",
-    ],
-    career: [
-      "面接冒頭：短く落ち着いて入れる（第一印象が安定）",
-      "OB訪問/説明会：初対面での一歩が踏み出せる",
-      "ES：結論先行で冗長さが消える",
-      "GD：場の空気を整える発言ができる",
-      "不合格が続いても改善して次へ向かえる",
-    ],
-    evaluation: [
-      "第一声が短い（説明が始まっていない）",
-      "反応に合わせて言い方を変えられている",
-      "断られてもテンションが大きく落ちない",
-    ],
-  },
-  {
-    lv: 2,
-    title: "会話化（1往復の会話が作れる）",
-    action: "返答を引き出し、返答に合わせて次の問いへ繋げる。",
-    skills: [
-      "質問設計（答えやすい問い・進む問い）",
-      "会話テンポ管理（間・リズム・話す量）",
-      "相手理解の初速（忙しさ/警戒/興味）",
-      "相槌・要約で“聞いてる感”",
-      "タイプ別の言葉選び（反応適応）",
-      "打席思考（一定量こなして確率を上げる）",
-    ],
-    career: [
-      "面接：質問意図を捉えてズレずに返せる",
-      "深掘り：論点を保って返せる",
-      "GD：議論を進める質問ができる",
-      "OB訪問：学びの密度が上がる",
-      "逆質問：次の質問へ繋げられる",
-    ],
-    evaluation: [
-      "1往復以上の会話が一定数作れている",
-      "返答後に詰まらない（次が出る）",
-      "会話を長引かせず前に進める意識がある",
-    ],
-  },
-  {
-    lv: 3,
-    title: "入口誘導（次のステップへ運ぶ）",
-    action: "不安を先に潰し、次の場（席・担当）へ自然に繋ぐ。",
-    skills: [
-      "導線設計（立ち話→本題の入口）",
-      "不安処理（時間/目的/安心感を先回り）",
-      "合意形成の初歩（小さな承諾の積み上げ）",
-      "フレーミング（枠組み提示）",
-      "信頼の積み増し（小さな約束を守る）",
-      "場づくり（話しやすい空気の設計）",
-    ],
-    career: [
-      "面接：回答の枠組みを自分で作れる",
-      "ケース/GD：進め方の提案ができる",
-      "面談：懸念を先回りで潰せる",
-      "志望動機：企業の懸念を踏まえた言い方",
-      "就活：軸を整理して次の行動を決められる",
-    ],
-    evaluation: [
-      "次のステップへの繋ぎが自然（押し売り感が少ない）",
-      "相手の不安を言語化して先に潰せている",
-      "雑談で終わらず前進している",
-    ],
-  },
-  {
-    lv: 4,
-    title: "再現性×引き継ぎ（安定して成果を出す）",
-    action: "相手タイプ別に進め方を変え、要点を整理して次担当へつなぐ。",
-    skills: [
-      "再現性（調子ではなく型で成果を出す）",
-      "情報整理（要点抽出・短く共有）",
-      "状況判断（押す/引く/渡すの切り替え）",
-      "改善の継続（翌日に反映し続ける）",
-      "チーム連携（個人成果→チーム成果）",
-      "育成視点（型を言語化して伝える）",
-    ],
-    career: [
-      "面接：どの企業でも“感じよく・簡潔に・ズレなく”話せる",
-      "ES：要点抽出が上手くなり読みやすい構造にできる",
-      "GD：要点をまとめて共有できる（整理役）",
-      "インターン/内定後：報連相が強い人として評価されやすい",
-      "成長方法（改善サイクル）を語れる＝伸びしろが伝わる",
-    ],
-    evaluation: [
-      "成果のムラが小さい（安定）",
-      "共有が短く分かりやすい（要点）",
-      "改善が継続して見える（翌日反映）",
-    ],
-  },
-];
-
-const closerData = [
-  {
-    lv: 1,
-    title: "同席・補助（型を覚える）",
-    action: "商談の流れを観察し、要点・不安・決め手をメモ→整理する。",
-    skills: [
-      "商談構造理解（決断を動かす要素の全体像）",
-      "要点抽出（重要発言・不安・決め手）",
-      "言語化（なぜそうなったかまで整理）",
-      "俯瞰力（目的・論点を外さない）",
-      "学習速度（上手い人の型を移植）",
-    ],
-    career: [
-      "面接練習：振り返りが具体になり改善が速い",
-      "GD：論点を見失いにくい",
-      "ES：経験を構造で書ける",
-      "企業研究：整理しながらインプットできる",
-      "協働・サポートで成果を出すタイプとして語れる",
-    ],
-    evaluation: [
-      "メモが要点中心（流れが追える）",
-      "決め手/不安が拾えている",
-      "振り返りが次の改善に繋がっている",
-    ],
-  },
-  {
-    lv: 2,
-    title: "ヒアリング主担当（課題を言語化）",
-    action: "状況・課題・優先順位を質問で整理し、要約して認識を合わせる。",
-    skills: [
-      "質問力（相手が考えていない論点を引き出す）",
-      "構造化（現状/理想/障害/優先/期限）",
-      "要約・確認（ズレを防ぐ合意形成）",
-      "共感の質（安心して話せる空気）",
-      "仮説検証（聞きながら立てて修正）",
-    ],
-    career: [
-      "面接：深掘りで詰まらない",
-      "逆質問：状況を引き出せる",
-      "GD：拡散した議論を整理して戻せる",
-      "自己分析：理由を掘れて強みが言語化される",
-      "聞く力が高い＝どの環境でも評価されやすい",
-    ],
-    evaluation: [
-      "相手の課題が言語化されている",
-      "要約確認ができている（ズレが少ない）",
-      "質問が浅く終わらず一段掘れている",
-    ],
-  },
-  {
-    lv: 3,
-    title: "提案設計（納得を作る）",
-    action: "価値を相手の言葉に翻訳し、判断基準を作って迷いを減らす。",
-    skills: [
-      "価値の翻訳（相手の言語で価値提示）",
-      "ロジック構築（結論→理由→具体→次）",
-      "比較軸設計（判断基準を作る）",
-      "反論処理（不安を論点化して解消）",
-      "ストーリー化（未来像が想像できる説明）",
-    ],
-    career: [
-      "志望動機：企業文脈に合わせて言い換えできる",
-      "自己PR：根拠と具体で説得力が上がる",
-      "ケース面接：論点整理→提案の流れが作れる",
-      "企業比較：判断基準を自分で作れる",
-      "提案型で動ける人材として評価されやすい",
-    ],
-    evaluation: [
-      "提案が短く筋が通っている",
-      "不安が整理されている",
-      "判断基準（何が決まれば進むか）が明確",
-    ],
-  },
-  {
-    lv: 4,
-    title: "クロージング×再現性（意思決定まで運ぶ）",
-    action: "次の行動を合意し、結果を分析して型として改善する。",
-    skills: [
-      "意思決定支援（迷いをほどき行動に落とす）",
-      "合意形成（期限・次ステップの明確化）",
-      "背中押し（圧ではなく納得で促す）",
-      "失注分析（理由を言語化し改善に落とす）",
-      "再現性共有（型をチームへ展開）",
-    ],
-    career: [
-      "最終面接：主体性・覚悟・決断力が伝わる",
-      "不合格後：原因分析→改善ができる",
-      "意思決定を前に進めた経験として語れる",
-      "入社後：推進力として評価される",
-      "結果が出るまで改善し続ける姿勢が武器",
-    ],
-    evaluation: [
-      "次アクションが明確に確定している",
-      "迷いの原因が言語化されている",
-      "改善が次の行動に反映されている",
-    ],
-  },
-];
 
 export default App;
