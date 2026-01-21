@@ -445,24 +445,27 @@ const App = () => {
               {/* ✅ ここが修正点：flex-col-reverse → flex-col（上からLevel1→4） */}
               <div className="w-full flex flex-col items-center gap-3">
                 {[
-                  { lv: 1, name: "聞く姿勢を作る", desc: "第一印象と警戒緩和", color: "bg-blue-50 border-blue-100 text-blue-700" },
-                  { lv: 2, name: "回数を積む", desc: "行動量の最大化と基礎体力", color: "bg-blue-100 border-blue-200 text-blue-800" },
-                  { lv: 3, name: "分析し改善する", desc: "勝ちパターンの言語化", color: "bg-blue-600 border-blue-600 text-white" },
-                  { lv: 4, name: "相手に合わせる", desc: "適応力と会話の成立", color: "bg-slate-900 border-slate-900 text-white shadow-2xl" },
-                ].map((item) => (
-                  <div
-                    key={item.lv}
-                    className={`${item.color} w-full p-6 rounded-2xl border flex flex-col items-center shadow-md transition-all hover:scale-105 cursor-pointer`}
-                    style={{ maxWidth: `${70 + item.lv * 7.5}%` }}
-                    onClick={() => scrollTo("catcher")}
-                    title={item.desc}
-                  >
-                    <span className="text-[10px] font-black opacity-50 uppercase tracking-tighter">
-                      Level 0{item.lv}
-                    </span>
-                    <span className="font-bold text-base">{item.name}</span>
-                  </div>
-                ))}
+  { lv: 1, name: '心を開かせて“聞く姿勢”を作る力', desc: "第一印象と警戒緩和", color: "bg-blue-50 border-blue-100 text-blue-700" },
+  { lv: 2, name: "回数を積み上げる行動量の力", desc: "行動量の最大化と基礎体力", color: "bg-blue-100 border-blue-200 text-blue-800" },
+  { lv: 3, name: "分析を繰り返して身につく改善力", desc: "勝ちパターンの言語化", color: "bg-blue-600 border-blue-600 text-white" },
+  { lv: 4, name: "相手に合わせて会話を成立させる力", desc: "適応力と会話の成立", color: "bg-slate-900 border-slate-900 text-white shadow-2xl" },
+].map((item) => (
+  <div
+    key={item.lv}
+    className={`${item.color} w-full p-6 rounded-2xl border flex flex-col items-center shadow-md transition-all hover:scale-105 cursor-pointer`}
+    style={{ maxWidth: `${70 + item.lv * 7.5}%` }}
+    onClick={() => scrollTo("catcher")}
+    title={item.desc}
+  >
+    <span className="text-[10px] font-black opacity-50 uppercase tracking-tighter">
+      Level 0{item.lv}
+    </span>
+    <span className="font-bold text-base text-center leading-snug">
+      {item.name}
+    </span>
+  </div>
+))}
+
               </div>
             </div>
 
@@ -483,24 +486,27 @@ const App = () => {
               {/* ✅ ここも修正点：flex-col-reverse → flex-col（上からLevel1→4） */}
               <div className="w-full flex flex-col items-center gap-3">
                 {[
-                  { lv: 1, name: "本音を引き出す", desc: "課題の特定と要約", color: "bg-emerald-50 border-emerald-100 text-emerald-700" },
-                  { lv: 2, name: "提案を刺す", desc: "価値翻訳と論理構成", color: "bg-emerald-100 border-emerald-200 text-emerald-800" },
-                  { lv: 3, name: "不安をほどく", desc: "懸念解消と納得感", color: "bg-emerald-600 border-emerald-600 text-white" },
-                  { lv: 4, name: "決断まで運ぶ", desc: "合意形成とクロージング", color: "bg-slate-900 border-slate-900 text-white shadow-2xl" },
-                ].map((item) => (
-                  <div
-                    key={item.lv}
-                    className={`${item.color} w-full p-6 rounded-2xl border flex flex-col items-center shadow-md transition-all hover:scale-105 cursor-pointer`}
-                    style={{ maxWidth: `${70 + item.lv * 7.5}%` }}
-                    onClick={() => scrollTo("closer")}
-                    title={item.desc}
-                  >
-                    <span className="text-[10px] font-black opacity-50 uppercase tracking-tighter">
-                      Level 0{item.lv}
-                    </span>
-                    <span className="font-bold text-base">{item.name}</span>
-                  </div>
-                ))}
+  { lv: 1, name: "本音を引き出すヒアリング力", desc: "課題の特定と要約", color: "bg-emerald-50 border-emerald-100 text-emerald-700" },
+  { lv: 2, name: "刺さる提案を組み立てる力", desc: "価値翻訳と論理構成", color: "bg-emerald-100 border-emerald-200 text-emerald-800" },
+  { lv: 3, name: "不安をほどいて決断に導く力", desc: "懸念解消と納得感", color: "bg-emerald-600 border-emerald-600 text-white" },
+  { lv: 4, name: "決断まで運び切るクロージング力", desc: "合意形成とクロージング", color: "bg-slate-900 border-slate-900 text-white shadow-2xl" },
+].map((item) => (
+  <div
+    key={item.lv}
+    className={`${item.color} w-full p-6 rounded-2xl border flex flex-col items-center shadow-md transition-all hover:scale-105 cursor-pointer`}
+    style={{ maxWidth: `${70 + item.lv * 7.5}%` }}
+    onClick={() => scrollTo("closer")}
+    title={item.desc}
+  >
+    <span className="text-[10px] font-black opacity-50 uppercase tracking-tighter">
+      Level 0{item.lv}
+    </span>
+    <span className="font-bold text-base text-center leading-snug">
+      {item.name}
+    </span>
+  </div>
+))}
+
               </div>
             </div>
           </div>
