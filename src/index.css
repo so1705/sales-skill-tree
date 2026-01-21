@@ -1,13 +1,21 @@
 @import "tailwindcss";
 
+/* ---- Marble-like background (no image required) ---- */
+.bg-marble {
+  background:
+    radial-gradient(1200px 700px at 10% 10%, rgba(15, 23, 42, 0.06), transparent 55%),
+    radial-gradient(900px 600px at 80% 30%, rgba(2, 132, 199, 0.06), transparent 55%),
+    radial-gradient(700px 500px at 20% 80%, rgba(16, 185, 129, 0.05), transparent 55%),
+    linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 35%, rgba(241,245,249,1) 100%);
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* これは残してもいいけど、挙動がブレるなら消す */
+  /* color-scheme: light dark; */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -26,8 +34,8 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  /* これのせいで中央寄せになりやすいから、教科書UIなら消した方が良い */
+  display: block;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -44,16 +52,8 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
 
 @media (prefers-color-scheme: light) {
@@ -63,8 +63,5 @@ button:focus-visible {
   }
   a:hover {
     color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
   }
 }
